@@ -17,6 +17,9 @@ import (
 	"golang.org/x/time/rate"
 	"google.golang.org/api/option"
 
+	"github.com/databricks/databricks-sdk-go/client"
+	"github.com/databricks/databricks-sdk-go/config"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/hashicorp/go-retryablehttp"
@@ -37,13 +40,16 @@ const (
 // can hold one or more coma-separated env variable names to find value, if not specified
 // directly. `auth` struct tag describes the type of conflicting authentication used.
 type DatabricksClient struct {
+	Config *config.Config
+	Client *client.DatabricksClient
+
 	Host     string `name:"host" env:"DATABRICKS_HOST"`
 	Token    string `name:"token" env:"DATABRICKS_TOKEN" auth:"token,sensitive"`
 	Username string `name:"username" env:"DATABRICKS_USERNAME" auth:"password"`
 	Password string `name:"password" env:"DATABRICKS_PASSWORD" auth:"password,sensitive"`
 
-	ClientID     string `name:"client_id" env:"DATABRICKS_CLIENT_ID" auth:"oauth"`
-	ClientSecret string `name:"client_secret" env:"DATABRICKS_CLIENT_SECRET" auth:"oauth,sensitive"`
+	ClientID      string `name:"client_id" env:"DATABRICKS_CLIENT_ID" auth:"oauth"`
+	ClientSecret  string `name:"client_secret" env:"DATABRICKS_CLIENT_SECRET" auth:"oauth,sensitive"`
 	TokenEndpoint string `name:"token_endpoint" env:"DATABRICKS_TOKEN_ENDPOINT" auth:"oauth"`
 
 	// Databricks Account ID for Accounts API. This field is used in dependencies.
