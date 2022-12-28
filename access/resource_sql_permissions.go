@@ -114,6 +114,8 @@ func (ta *SqlPermissions) read() error {
 	if thisType == "" && thisKey == "" {
 		return fmt.Errorf("invalid ID")
 	}
+	noBackticks := strings.ReplaceAll(thisKey, "`", "")
+
 	currentGrantsOnThis := ta.exec.Execute(ta.ClusterID, "sql", fmt.Sprintf(
 		"SHOW GRANT ON %s %s", thisType, thisKey))
 	if currentGrantsOnThis.Failed() {
@@ -148,7 +150,7 @@ func (ta *SqlPermissions) read() error {
 		if !strings.EqualFold(currentType, thisType) {
 			continue
 		}
-		if !strings.EqualFold(currentKey, thisKey) {
+		if !strings.EqualFold(currentKey, thisKey) && !strings.EqualFold(currentKey, noBackticks) {
 			continue
 		}
 		if strings.HasPrefix(currentAction, "DENIED_") {

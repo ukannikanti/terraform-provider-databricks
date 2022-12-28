@@ -501,3 +501,18 @@ func TestResourceSqlPermissions_NoUpdateAnonymousFunction(t *testing.T) {
 	assert.Equal(t, "SELECT", d.Get("privilege_assignments.0.privileges.0"))
 	assert.Equal(t, true, d.Get("anonymous_function"))
 }
+
+func TestDatabaseACLGrants(t *testing.T) {
+	ta := SqlPermissions{Database: "foo", exec: mockData{
+		"SHOW GRANT ON DATABASE `foo`": {
+			// principal, actionType, objType, objectKey
+			{"users", "SELECT", "database", "foo"},
+			{"users", "READ", "database", "foo"},
+			{"interns", "READ_METADATA", "database", "foo"},
+		},
+	}}
+	err := ta.read()
+	assert.NoError(t, err)
+	assert.Len(t, ta.PrivilegeAssignments, 2)
+	assert.Len(t, ta.PrivilegeAssignments[0].Privileges, 2)
+}
